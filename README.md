@@ -20,6 +20,14 @@ A macOS desktop app for searching text across large collections of PDF files. Su
 - macOS (the Preview and Finder integrations are macOS-only)
 - Python 3.11 or later
 
+> **First-run permission prompt:** opening a PDF at a specific page drives
+> Preview's "Go to Page…" dialog via macOS UI scripting, so the first time
+> you double-click a result, macOS will ask to grant the host app
+> Accessibility permission (under **System Settings → Privacy & Security →
+> Accessibility**). When running from source the host is Terminal; the
+> packaged `.app` requests it under its own name. If you decline, PDFs
+> still open — they just won't auto-navigate to the matched page.
+
 ## Setup
 
 Clone the repo, create a virtual environment, and install dependencies:

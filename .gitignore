@@ -1,6 +1,14 @@
+# Virtualenvs
 venv/
+.venv/
+
+# PyInstaller build artifacts
 build/
 dist/
+
+# Python caches
 __pycache__/
-*.spec
+*.pyc
+
+# macOS
 .DS_Store

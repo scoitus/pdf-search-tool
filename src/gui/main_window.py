@@ -38,7 +38,7 @@ class MainWindow(QMainWindow):
         self.splitter = QSplitter(Qt.Orientation.Horizontal)
 
         # Search panel (left)
-        self.search_panel = SearchPanel()
+        self.search_panel = SearchPanel(self.settings)
         self.search_panel.search_requested.connect(self._start_search)
         self.search_panel.cancel_requested.connect(self._cancel_search)
         self.splitter.addWidget(self.search_panel)
@@ -115,6 +115,7 @@ class MainWindow(QMainWindow):
         if self.worker and self.worker.isRunning():
             return
 
+        self.search_panel.recent_folders.record_folders(folders)
         self.results_panel.clear_results()
         self.search_panel.set_searching(True)
         self.progress_bar.setVisible(True)

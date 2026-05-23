@@ -74,3 +74,9 @@ class FolderListWidget(QWidget):
         for folder in folders:
             self.list_widget.addItem(folder)
         self.folders_changed.emit()
+
+    def add_folder(self, folder: str):
+        """Append a folder if not already present."""
+        if folder and folder not in self.get_folders():
+            self.list_widget.addItem(folder)
+            self.folders_changed.emit()

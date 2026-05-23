@@ -4,9 +4,10 @@ from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit,
     QRadioButton, QCheckBox, QPushButton, QButtonGroup,
 )
-from PyQt6.QtCore import pyqtSignal, Qt
+from PyQt6.QtCore import pyqtSignal, Qt, QSettings
 
 from gui.folder_list_widget import FolderListWidget
+from gui.recent_folders_widget import RecentFoldersWidget
 
 
 class SearchPanel(QWidget):
@@ -16,11 +17,12 @@ class SearchPanel(QWidget):
     # query, mode, case_sensitive, folders, recursive
     cancel_requested = pyqtSignal()
 
-    def __init__(self, parent=None):
+    def __init__(self, settings: QSettings, parent=None):
         super().__init__(parent)
         self.setObjectName("searchPanel")
         self.setMinimumWidth(280)
         self.setMaximumWidth(380)
+        self.settings = settings
         self._setup_ui()
 
     def _setup_ui(self):
@@ -80,6 +82,15 @@ class SearchPanel(QWidget):
         self.recursive_cb = QCheckBox("Search subdirectories")
         self.recursive_cb.setChecked(True)
         layout.addWidget(self.recursive_cb)
+
+        # --- Recent folders ---
+        recent_label = QLabel("Recent")
+        recent_label.setObjectName("sectionLabel")
+        layout.addWidget(recent_label)
+
+        self.recent_folders = RecentFoldersWidget(self.settings)
+        self.recent_folders.folder_activated.connect(self.folder_list.add_folder)
+        layout.addWidget(self.recent_folders)
 
         # --- Spacer ---
         layout.addStretch()

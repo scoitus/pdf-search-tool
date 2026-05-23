@@ -79,7 +79,7 @@ class LoadProfileDialog(QDialog):
             item = QListWidgetItem(profile.name)
             detail = f"  {profile.search_mode} | {profile.query}"
             if profile.folders:
-                detail += f" | {len(profile.folders)} folder(s)"
+                detail += f" | {len(profile.folders)} source(s)"
             item.setToolTip(detail)
             self.list_widget.addItem(item)
         self.list_widget.itemDoubleClicked.connect(self._on_load)
@@ -117,13 +117,13 @@ class LoadProfileDialog(QDialog):
     def _update_detail(self, row: int):
         if 0 <= row < len(self.profiles):
             p = self.profiles[row]
-            folders = "\n  ".join(p.folders) if p.folders else "(none)"
+            sources = "\n  ".join(p.folders) if p.folders else "(none)"
             self.detail_label.setText(
                 f"Query: {p.query}\n"
                 f"Mode: {p.search_mode} | "
                 f"Case sensitive: {'Yes' if p.case_sensitive else 'No'} | "
                 f"Recursive: {'Yes' if p.recursive else 'No'}\n"
-                f"Folders:\n  {folders}"
+                f"Sources:\n  {sources}"
             )
         else:
             self.detail_label.setText("")

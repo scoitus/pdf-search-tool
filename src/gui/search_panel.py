@@ -4,9 +4,10 @@ from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit,
     QRadioButton, QCheckBox, QPushButton, QButtonGroup,
 )
-from PyQt6.QtCore import pyqtSignal, Qt
+from PyQt6.QtCore import pyqtSignal, Qt, QSettings
 
 from gui.folder_list_widget import FolderListWidget
+from gui.recent_folders_widget import RecentFoldersWidget
 
 
 class SearchPanel(QWidget):
@@ -16,11 +17,12 @@ class SearchPanel(QWidget):
     # query, mode, case_sensitive, folders, recursive
     cancel_requested = pyqtSignal()
 
-    def __init__(self, parent=None):
+    def __init__(self, settings: QSettings, parent=None):
         super().__init__(parent)
         self.setObjectName("searchPanel")
         self.setMinimumWidth(280)
         self.setMaximumWidth(380)
+        self.settings = settings
         self._setup_ui()
 
     def _setup_ui(self):
@@ -36,6 +38,7 @@ class SearchPanel(QWidget):
         self.query_input = QLineEdit()
         self.query_input.setPlaceholderText("Enter search term or expression...")
         self.query_input.returnPressed.connect(self._on_search)
+        self.query_input.textChanged.connect(self._update_search_enabled)
         layout.addWidget(self.query_input)
 
         # --- Search mode ---
@@ -69,17 +72,27 @@ class SearchPanel(QWidget):
         self.case_sensitive_cb = QCheckBox("Case sensitive")
         layout.addWidget(self.case_sensitive_cb)
 
-        # --- Folders ---
-        folders_label = QLabel("Folders")
+        # --- Sources (folders and/or individual files) ---
+        folders_label = QLabel("Sources")
         folders_label.setObjectName("sectionLabel")
         layout.addWidget(folders_label)
 
         self.folder_list = FolderListWidget()
+        self.folder_list.folders_changed.connect(self._update_search_enabled)
         layout.addWidget(self.folder_list)
 
         self.recursive_cb = QCheckBox("Search subdirectories")
         self.recursive_cb.setChecked(True)
         layout.addWidget(self.recursive_cb)
+
+        # --- Recent folders ---
+        recent_label = QLabel("Recent")
+        recent_label.setObjectName("sectionLabel")
+        layout.addWidget(recent_label)
+
+        self.recent_folders = RecentFoldersWidget(self.settings)
+        self.recent_folders.folder_activated.connect(self.folder_list.add_folder)
+        layout.addWidget(self.recent_folders)
 
         # --- Spacer ---
         layout.addStretch()
@@ -88,6 +101,8 @@ class SearchPanel(QWidget):
         self.search_btn = QPushButton("Search")
         self.search_btn.setObjectName("searchButton")
         self.search_btn.clicked.connect(self._on_search)
+        self.search_btn.setEnabled(False)
+        self.search_btn.setToolTip("Enter a query and add at least one source")
         layout.addWidget(self.search_btn)
 
         self.cancel_btn = QPushButton("Cancel")
@@ -119,10 +134,26 @@ class SearchPanel(QWidget):
 
     def set_searching(self, searching: bool):
         """Toggle UI between searching and idle states."""
+        self._searching = searching
         self.search_btn.setVisible(not searching)
-        self.search_btn.setEnabled(not searching)
         self.cancel_btn.setVisible(searching)
         self.query_input.setEnabled(not searching)
+        self._update_search_enabled()
+
+    def _update_search_enabled(self):
+        """Enable Search only when there's a query and at least one source."""
+        if getattr(self, "_searching", False):
+            self.search_btn.setEnabled(False)
+            return
+        has_query = bool(self.query_input.text().strip())
+        has_sources = bool(self.folder_list.get_folders())
+        self.search_btn.setEnabled(has_query and has_sources)
+        if not has_query:
+            self.search_btn.setToolTip("Enter a search query")
+        elif not has_sources:
+            self.search_btn.setToolTip("Add a folder or file to search")
+        else:
+            self.search_btn.setToolTip("")
 
     def get_query(self) -> str:
         return self.query_input.text().strip()

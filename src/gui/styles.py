@@ -124,32 +124,32 @@ QPushButton#cancelButton:hover {
     background-color: #d63028;
 }
 
-QPushButton#addFolderButton {
-    font-size: 18px;
-    padding: 2px 8px;
-    min-width: 28px;
-    max-width: 28px;
-    min-height: 28px;
-    max-height: 28px;
-    border-radius: 14px;
+QPushButton#addSourceButton {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 4px 10px;
+    min-height: 24px;
+    border-radius: 6px;
     background-color: #3a3a3a;
     color: #0a84ff;
+    border: 1px solid #4a4a4a;
 }
 
-QPushButton#addFolderButton:hover {
+QPushButton#addSourceButton:hover {
     background-color: #484848;
 }
 
 QPushButton#removeFolderButton {
-    font-size: 18px;
+    font-size: 16px;
     padding: 2px 8px;
     min-width: 28px;
     max-width: 28px;
-    min-height: 28px;
-    max-height: 28px;
-    border-radius: 14px;
+    min-height: 24px;
+    max-height: 24px;
+    border-radius: 6px;
     background-color: #3a3a3a;
     color: #ff453a;
+    border: 1px solid #4a4a4a;
 }
 
 QPushButton#removeFolderButton:hover {

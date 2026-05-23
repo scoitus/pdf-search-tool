@@ -31,14 +31,14 @@ class MainWindow(QMainWindow):
         self._setup_ui()
         self._setup_menu_bar()
         self._setup_shortcuts()
-        self._restore_geometry()
+        self._restore_state()
 
     def _setup_ui(self):
         # Central splitter
         self.splitter = QSplitter(Qt.Orientation.Horizontal)
 
         # Search panel (left)
-        self.search_panel = SearchPanel()
+        self.search_panel = SearchPanel(self.settings)
         self.search_panel.search_requested.connect(self._start_search)
         self.search_panel.cancel_requested.connect(self._cancel_search)
         self.splitter.addWidget(self.search_panel)
@@ -115,6 +115,7 @@ class MainWindow(QMainWindow):
         if self.worker and self.worker.isRunning():
             return
 
+        self.search_panel.recent_folders.record_folders(folders)
         self.results_panel.clear_results()
         self.search_panel.set_searching(True)
         self.progress_bar.setVisible(True)
@@ -218,8 +219,8 @@ class MainWindow(QMainWindow):
             self.profile_manager.update_last_used(p.name)
             self.status_label.setText(f"Profile '{p.name}' loaded")
 
-    def _restore_geometry(self):
-        """Restore window geometry from settings."""
+    def _restore_state(self):
+        """Restore window geometry and last-used search options from settings."""
         geometry = self.settings.value("geometry")
         if geometry:
             self.restoreGeometry(geometry)
@@ -227,10 +228,30 @@ class MainWindow(QMainWindow):
         if splitter_state:
             self.splitter.restoreState(splitter_state)
 
+        # Last-used search options
+        mode = self.settings.value("searchMode", "plain")
+        if isinstance(mode, str):
+            self.search_panel.set_mode(mode)
+        self.search_panel.set_case_sensitive(
+            self.settings.value("caseSensitive", False, type=bool)
+        )
+        self.search_panel.set_recursive(
+            self.settings.value("recursive", True, type=bool)
+        )
+
     def closeEvent(self, event):
-        """Save window geometry on close."""
+        """Save window geometry and search options on close."""
         self.settings.setValue("geometry", self.saveGeometry())
         self.settings.setValue("splitter", self.splitter.saveState())
+        self.settings.setValue("searchMode", self.search_panel.get_mode())
+        self.settings.setValue(
+            "caseSensitive",
+            self.search_panel.case_sensitive_cb.isChecked(),
+        )
+        self.settings.setValue(
+            "recursive",
+            self.search_panel.recursive_cb.isChecked(),
+        )
         if self.worker and self.worker.isRunning():
             self.worker.cancel()
             self.worker.wait(2000)

@@ -59,15 +59,23 @@ class RecentFoldersWidget(QWidget):
         return [p for p in (value or []) if isinstance(p, str)]
 
     def record_folders(self, folders: list[str]):
-        """Move/insert folders to the front of the recent list and persist."""
+        """Move/insert folder paths to the front of the recent list and persist.
+
+        Non-directory paths (individual files) are ignored so this list stays
+        focused on folders, as the RECENT feature was originally specified.
+        """
         existing = self.get_recent()
         # Newest items go first; later folders in the input take priority
         merged: list[str] = []
         seen: set[str] = set()
         for path in list(folders) + existing:
-            if path and path not in seen:
-                merged.append(path)
-                seen.add(path)
+            if not path or path in seen:
+                continue
+            # Only record directories; skip individual files.
+            if not os.path.isdir(path):
+                continue
+            merged.append(path)
+            seen.add(path)
             if len(merged) >= MAX_RECENT_FOLDERS:
                 break
         self.settings.setValue(SETTINGS_KEY, merged)

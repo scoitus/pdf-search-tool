@@ -6,8 +6,8 @@ A macOS desktop app for searching text across large collections of PDF files. Su
 
 - **Three search modes** — Plain text, Regular expression, and Boolean (`AND` / `OR` / `NOT` with phrase quoting and parentheses grouping)
 - **Case-sensitive option** — toggle per search
-- **Multi-folder search** — add as many source folders as needed
-- **Recursive subdirectory search** — toggle on/off
+- **Multi-source search** — mix and match folders and individual PDF files in a single search
+- **Recursive subdirectory search** — toggle on/off for folder sources
 - **Recently searched folders** — quick access to the last 10 folders used
 - **Live results** — matches stream in as each file is processed
 - **In-context snippets** — view surrounding text for each match

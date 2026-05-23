@@ -71,8 +71,8 @@ class SearchPanel(QWidget):
         self.case_sensitive_cb = QCheckBox("Case sensitive")
         layout.addWidget(self.case_sensitive_cb)
 
-        # --- Folders ---
-        folders_label = QLabel("Folders")
+        # --- Sources (folders and/or individual files) ---
+        folders_label = QLabel("Sources")
         folders_label.setObjectName("sectionLabel")
         layout.addWidget(folders_label)
 

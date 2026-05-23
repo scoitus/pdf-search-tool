@@ -33,13 +33,27 @@ class SearchWorker(QThread):
         start_time = time.time()
         all_results: list[FileResult] = []
 
-        # Gather all PDF files across all folders
+        # Gather all PDF files across all sources (folders and individual files)
         pdf_files: list[str] = []
-        for folder in self.folders:
+        seen: set[str] = set()
+
+        def _add(path: str):
+            if path not in seen:
+                pdf_files.append(path)
+                seen.add(path)
+
+        for source in self.folders:
             try:
-                pdf_files.extend(self.engine.find_pdfs(folder, self.recursive))
+                if os.path.isfile(source):
+                    if source.lower().endswith(".pdf"):
+                        _add(source)
+                elif os.path.isdir(source):
+                    for pdf in self.engine.find_pdfs(source, self.recursive):
+                        _add(pdf)
+                else:
+                    self.error_occurred.emit(f"Path not found: {source}")
             except Exception as e:
-                self.error_occurred.emit(f"Error scanning {folder}: {e}")
+                self.error_occurred.emit(f"Error scanning {source}: {e}")
 
         total = len(pdf_files)
         files_with_matches = 0

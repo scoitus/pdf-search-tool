@@ -23,7 +23,7 @@ A macOS desktop app for searching text across large collections of PDF files. Su
 ## Requirements
 
 - macOS (the Preview and Finder integrations are macOS-only)
-- Python 3.11 or later
+- [uv](https://docs.astral.sh/uv/) — it installs the right Python version and all dependencies for you
 
 > **First-run permission prompt:** opening a PDF at a specific page drives
 > Preview's "Go to Page…" dialog via macOS UI scripting, so the first time
@@ -35,45 +35,29 @@ A macOS desktop app for searching text across large collections of PDF files. Su
 
 ## Setup
 
-Clone the repo, create a virtual environment, and install dependencies:
+Clone the repo and let uv install Python and the dependencies:
 
 ```bash
 git clone <repo-url>
 cd pdf-search-tool
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+uv sync
 ```
 
 ## Running from source
 
-Activate the virtual environment and launch:
-
 ```bash
-source .venv/bin/activate
-python src/main.py
+uv run python src/main.py
 ```
-
-> You need to run `source .venv/bin/activate` each time you open a new terminal session before launching the app.
 
 ## Building a standalone macOS app
 
 A [PyInstaller](https://pyinstaller.org/) spec file is used to produce a self-contained `.app` bundle (no Python installation required to run it):
 
 ```bash
-source .venv/bin/activate
 ./scripts/build.sh
 ```
 
 The built app is placed at `dist/PDF Search Tool.app`.
-
-### Installing the built app
-
-```bash
-./scripts/install.sh
-```
-
-> **Note:** `scripts/install.sh` has a hardcoded destination path (`/Applications/_MY APPS/PDF Search Tool.app`). Edit that path in the script before running if you want to install elsewhere.
 
 ## Project structure
 
@@ -102,8 +86,7 @@ src/
     └── search_worker.py     # Background search thread (QThread)
 
 scripts/
-├── build.sh                 # PyInstaller build
-└── install.sh               # Copy built app to Applications
+└── build.sh                 # PyInstaller build
 ```
 
 ## Boolean search syntax

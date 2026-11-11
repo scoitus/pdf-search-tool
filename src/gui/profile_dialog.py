@@ -89,14 +89,14 @@ class LoadProfileDialog(QDialog):
         # Detail label
         self.detail_label = QLabel("")
         self.detail_label.setWordWrap(True)
-        self.detail_label.setStyleSheet("color: #6e6e73; font-size: 12px;")
+        self.detail_label.setObjectName("mutedLabel")
         layout.addWidget(self.detail_label)
 
         # Buttons
         btn_layout = QHBoxLayout()
 
         delete_btn = QPushButton("Delete")
-        delete_btn.setStyleSheet("color: #ff3b30;")
+        delete_btn.setObjectName("dangerButton")
         delete_btn.clicked.connect(self._on_delete)
         btn_layout.addWidget(delete_btn)
 

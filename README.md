@@ -10,7 +10,12 @@ A macOS desktop app for searching text across large collections of PDF files. Su
 - **Recursive subdirectory search** — toggle on/off for folder sources
 - **Recently searched folders** — quick access to the last 10 folders used
 - **Live results** — matches stream in as each file is processed
-- **In-context snippets** — view surrounding text for each match
+- **In-context snippets** — each match shows its surrounding text with the term highlighted
+- **Page peek** — hover (or arrow-key to) a result to see the actual PDF page region in a floating preview, with the match highlighted
+- **Built-in page viewer** — click a result to read the full page beside the list, step through matches, change pages and zoom
+- **Sort and group results** — by order found, name, match count or date modified; grouped by file or by folder
+- **Drag and drop** — drop folders or PDFs anywhere in the window to add them
+- **Light and dark themes** — follows the macOS appearance setting
 - **Open in Preview** — jump directly to the matching page
 - **Reveal in Finder** — locate the source file quickly
 - **Saved profiles** — save and reload named search configurations (query, folders, mode, options)
@@ -81,12 +86,15 @@ src/
 ├── preview_opener.py        # macOS Preview and Finder integration
 ├── gui/
 │   ├── main_window.py       # Top-level application window
-│   ├── search_panel.py      # Left panel: query, mode, folders, options
+│   ├── search_bar.py        # Top bar: query, mode, match case, Search
+│   ├── search_panel.py      # Sidebar: folders/files to search, recent
+│   ├── pdf_preview.py       # Page rendering + floating preview of a match
+│   ├── page_viewer.py       # Side pane showing the full page for a match
 │   ├── folder_list_widget.py
 │   ├── recent_folders_widget.py
-│   ├── results_panel.py     # Right panel: results tree and snippets
+│   ├── results_panel.py     # Right panel: results grouped by file
 │   ├── profile_dialog.py    # Save / Load profile dialogs
-│   └── styles.py            # Dark-mode QSS stylesheet
+│   └── styles.py            # Light/dark theme colors and QSS stylesheet
 ├── models/
 │   ├── search_result.py     # Result data classes
 │   └── search_profile.py    # Profile data class

@@ -2,21 +2,26 @@
 
 import os
 
-from PyQt6.QtCore import Qt, pyqtSignal, QSettings
-from PyQt6.QtWidgets import QListWidget, QListWidgetItem, QVBoxLayout, QWidget
+from PyQt6.QtCore import QFileInfo, Qt, pyqtSignal, QSettings
+from PyQt6.QtWidgets import (
+    QFileIconProvider, QListWidget, QListWidgetItem, QVBoxLayout, QWidget,
+)
+
+from gui.folder_list_widget import short_path
 
 MAX_RECENT_FOLDERS = 10
 SETTINGS_KEY = "recentFolders"
 
 
 class RecentFoldersWidget(QWidget):
-    """List of recently searched folders. Double-click or Enter to use."""
+    """List of recently searched folders. Click one to search it again."""
 
     folder_activated = pyqtSignal(str)
 
     def __init__(self, settings: QSettings, parent=None):
         super().__init__(parent)
         self.settings = settings
+        self._icons = QFileIconProvider()
         self._setup_ui()
         self._reload()
 
@@ -26,11 +31,11 @@ class RecentFoldersWidget(QWidget):
         layout.setSpacing(4)
 
         self.list_widget = QListWidget()
-        self.list_widget.setMaximumHeight(120)
-        self.list_widget.setToolTip(
-            "Recently searched folders — double-click to add"
+        self.list_widget.setSelectionMode(
+            QListWidget.SelectionMode.NoSelection
         )
-        self.list_widget.itemActivated.connect(self._on_activate)
+        self.list_widget.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.list_widget.itemClicked.connect(self._on_activate)
         layout.addWidget(self.list_widget)
 
     def _reload(self):
@@ -38,7 +43,8 @@ class RecentFoldersWidget(QWidget):
         for path in self.get_recent():
             item = QListWidgetItem(self._display_name(path))
             item.setData(Qt.ItemDataRole.UserRole, path)
-            item.setToolTip(path)
+            item.setToolTip(f"Click to add  {short_path(path)}")
+            item.setIcon(self._icons.icon(QFileInfo(path)))
             self.list_widget.addItem(item)
 
     @staticmethod

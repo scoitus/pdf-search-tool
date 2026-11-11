@@ -1,10 +1,16 @@
 import os
 import re
+import threading
 from pathlib import Path
 
 import fitz  # PyMuPDF
 
 from models.search_result import MatchContext, FileResult, SearchResults
+
+
+# MuPDF is not safe to use from two threads at once. The search worker and
+# the preview renderer (GUI thread) both take this lock around PDF calls.
+PDF_LOCK = threading.Lock()
 
 
 class SearchEngine:
@@ -21,16 +27,17 @@ class SearchEngine:
             file_name=os.path.basename(file_path),
         )
         try:
-            doc = fitz.open(file_path)
+            with PDF_LOCK:
+                doc = fitz.open(file_path)
+                result.total_pages = len(doc)
         except Exception as e:
             result.error = str(e)
             return result
 
-        result.total_pages = len(doc)
-
-        for page_idx in range(len(doc)):
-            page = doc[page_idx]
-            text = page.get_text()
+        for page_idx in range(result.total_pages):
+            # Lock per page so a preview render never waits on a whole file.
+            with PDF_LOCK:
+                text = doc[page_idx].get_text()
             if not text:
                 continue
 
@@ -50,7 +57,8 @@ class SearchEngine:
                     extended_context=extended,
                 ))
 
-        doc.close()
+        with PDF_LOCK:
+            doc.close()
         return result
 
     def search_folder(self, folder_path: str, query: str,

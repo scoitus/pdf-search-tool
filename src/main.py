@@ -10,7 +10,7 @@ from PyQt6.QtWidgets import QApplication
 from PyQt6.QtCore import Qt
 
 from gui.main_window import MainWindow
-from gui.styles import MACOS_STYLESHEET
+from gui.styles import build_stylesheet, current_theme
 
 
 def main():
@@ -19,7 +19,7 @@ def main():
     app.setOrganizationName("CT")
     app.setOrganizationDomain("com.user.pdfsearchtool")
 
-    app.setStyleSheet(MACOS_STYLESHEET)
+    app.setStyleSheet(build_stylesheet(current_theme()))
 
     window = MainWindow()
     window.setWindowTitle("PDF Search Tool")
